@@ -1,0 +1,4 @@
+language: go
+sudo: false
+env:
+    - AWS_DEFAULT_REGION=eu-west-1 AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy
