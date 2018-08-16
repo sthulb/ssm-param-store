@@ -98,7 +98,7 @@ func TestParameter(t *testing.T) {
 		past, _ := time.Parse("Mon, 01/02/06, 03:04PM", "Thu, 05/19/11, 10:47PM")
 
 		p := NewParameter("foo", "test", AutoRefreshValue(true))
-		p.RefreshFn = func() (interface{}, error) {
+		p.RefreshFn = func(p *Parameter) (interface{}, error) {
 			return nil, nil
 		}
 

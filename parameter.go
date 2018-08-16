@@ -2,7 +2,6 @@ package store
 
 import (
 	"errors"
-	"fmt"
 	"time"
 )
 
@@ -15,7 +14,7 @@ var (
 )
 
 // RefreshFn creates a callback for when a param value needs to be refreshed
-type RefreshFn func() (interface{}, error)
+type RefreshFn func(p *Parameter) (interface{}, error)
 
 // ParameterOptionFn type allows options to be specified for the parameter, such as auto refresh or expiry
 type ParameterOptionFn func(p *Parameter)
@@ -60,10 +59,19 @@ func NewParameter(name string, value interface{}, opts ...ParameterOptionFn) *Pa
 	}
 
 	for _, o := range opts {
+		if o == nil {
+			break
+		}
+
 		o(param)
 	}
 
 	return param
+}
+
+func (p *Parameter) UpdateValue(v interface{}) {
+	p.Value = v
+	p.lastRefresh = time.Now()
 }
 
 func (p *Parameter) StringValue() (string, error) {
@@ -72,16 +80,6 @@ func (p *Parameter) StringValue() (string, error) {
 	}
 
 	value := p.Value.(string)
-
-	return value, nil
-}
-
-func (p *Parameter) StringListValue() ([]string, error) {
-	if p.Expires {
-		return nil, p.RefreshValue()
-	}
-
-	value := p.Value.([]string)
 
 	return value, nil
 }
@@ -96,13 +94,12 @@ func (p *Parameter) RefreshValue() error {
 		return nil
 	}
 
-	fmt.Printf("refreshfn: %v", p.RefreshFn)
 	if p.AutoRefresh && p.RefreshFn == nil {
 		return ErrNoRefreshFn
 	}
 
 	if p.AutoRefresh && p.RefreshFn != nil {
-		_, err := p.RefreshFn()
+		_, err := p.RefreshFn(p)
 		if err != nil {
 			return err
 		}
