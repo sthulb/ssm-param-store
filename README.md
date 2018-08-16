@@ -9,7 +9,7 @@ Wraps the AWS Go SDK's Parameter Store into a higher level package. Adding refre
 ## How to Install
 
 Install the package:
-```go
+```bash
 go get github.com/sthulb/ssm-param-store
 ```
 
@@ -25,6 +25,25 @@ import "github.com/sthulb/ssm-param-store"
 func main() {
     ps := store.New()
     param, err := ps.Param("name")
+    if err != nil {
+        panic(err)
+    }
+
+    fmt.Print(param.StringValue())
+}
+```
+
+With Expiry:
+```go
+package main
+
+import "fmt"
+import "time"
+import "github.com/sthulb/ssm-param-store"
+
+func main() {
+    ps := store.New()
+    param, err := ps.Param("name", ValueExpires(time.Minute))
     if err != nil {
         panic(err)
     }
